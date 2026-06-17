@@ -125,6 +125,6 @@ def setup(app, context):
     @app.get("/api/plugins/midi_amp/song-tones/{filename:path}")
     def get_song_tones(filename: str):
         """Auto-extraction of tone keys from a song has been removed
-        (it read the encrypted CDLC container). Map tones manually;
+        (it read the encrypted song container). Map tones manually;
         returns an empty list so the UI degrades gracefully."""
         return {"tones": []}

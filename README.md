@@ -5,7 +5,7 @@ A plugin for [Slopsmith](https://github.com/got-feedback/feedback) that sends MI
 ## Features
 
 - **Auto-detect MIDI devices** — uses the Web MIDI API to find connected USB MIDI devices
-- **Per-song tone mapping** — map each Rocksmith tone to a MIDI program number (preset) on your device
+- **Per-song tone mapping** — map each song tone to a MIDI program number (preset) on your device
 - **Bank Select support** — MSB and LSB for devices with more than 128 presets
 - **Channel selection** — route to any MIDI channel (0-15)
 - **Test button** — send a Program Change manually to verify your mapping

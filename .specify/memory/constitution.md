@@ -28,10 +28,10 @@ specific switch. The DB schema and UI MUST treat both as first-class:
 payload. The legacy schema (program / bank MSB / bank LSB) implied by
 older docs is **not** the current shape.
 
-### 4. PSARC Tone Discovery, Sloppak Returns Empty
+### 4. Tone Discovery, Sloppak Returns Empty
 
-Tone discovery walks the PSARC's JSON entries for `Tones[].Key /
-.Name`. Sloppaks have no RS-format tone manifest, so the endpoint
+Tone discovery walks the archive's JSON entries for `Tones[].Key /
+.Name`. Sloppaks have no built-in tone manifest, so the endpoint
 MUST return `{tones: []}` rather than 500 on the magic-byte check.
 
 ### 5. Test Button Is the Truth
