@@ -132,23 +132,23 @@ def setup(app, context):
 
     @app.get("/api/plugins/midi_amp/song-tones/{filename:path}")
     def get_song_tones(filename: str):
-        # Get tone keys from a CDLC for mapping
+        # Get tone keys from a DLC for mapping
         dlc = context["get_dlc_dir"]()
         if not dlc:
             return {"error": "DLC folder not configured"}
         
         dlc_path = dlc.resolve()
-        psarc_path = (dlc_path / filename).resolve()
+        feedpak_path = (dlc_path / filename).resolve()
         try:
-            psarc_path.relative_to(dlc_path)
+            feedpak_path.relative_to(dlc_path)
         except ValueError:
             return {"error": "Invalid path"}
-        if not psarc_path.exists():
+        if not feedpak_path.exists():
             return {"error": "File not found"}
 
         
-        # Load the sloppak song
-        if filename.lower().endswith(".sloppak"):
+        # Load the song
+        if filename.lower().endswith(".sloppak") or filename.lower().endswith(".feedpak"):
             sloppak_cache = context["get_sloppak_cache_dir"]()
             if not sloppak_cache:
                 return {"error": "Sloppack cache folder not configured"}
@@ -186,40 +186,5 @@ def setup(app, context):
                             "arrangement": arr_name
                         })
             return {"tones": tones}
-
-        # Not a sloppak so fall back to psarc handling
-        from psarc import read_psarc_entries
-        try:
-            files = read_psarc_entries(str(psarc_path), ["*.json"])
-        except (ValueError, OSError) as exc:
+        else:
             return {"tones": [], "error": "Unsupported or invalid archive"}
-        tones = []
-        seen = set()
-
-        for path, data in sorted(files.items()):
-            if not path.endswith(".json"):
-                continue
-            try:
-                j = json.loads(data)
-            except json.JSONDecodeError:
-                import re
-                text = data.decode("utf-8", errors="ignore")
-                text = re.sub(r",\s*([}\]])", r"\1", text)
-                try:
-                    j = json.loads(text)
-                except Exception:
-                    continue
-
-            for k, v in j.get("Entries", {}).items():
-                attrs = v.get("Attributes", {})
-                arr_name = attrs.get("ArrangementName", "")
-                if arr_name in ("Vocals", "ShowLights", "JVocals"):
-                    continue
-                for t in attrs.get("Tones", []):
-                    key = t.get("Key", "")
-                    name = t.get("Name", key)
-                    if key and key not in seen:
-                        seen.add(key)
-                        tones.append({"key": key, "name": name, "arrangement": arr_name})
-
-        return {"tones": tones}
