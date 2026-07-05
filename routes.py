@@ -165,10 +165,11 @@ def setup(app, context):
     
             for arr in loaded.song.arrangements:
                 arr_name = getattr(arr, "name", "")
-                if arr_name in ("Vocals", "ShowLights", "JVocals") or not arr.tones or not isinstance(arr.tones, dict):
+                arr_tones = getattr(arr, "tones", None)
+                if arr_name in ("Vocals", "ShowLights", "JVocals") or not arr_tones or not isinstance(arr.tones, dict):
                     continue
 
-                definitions = arr.tones.get("definitions", [])
+                definitions = arr_tones.get("definitions", [])
                 if not isinstance(definitions, list):
                     continue
             
