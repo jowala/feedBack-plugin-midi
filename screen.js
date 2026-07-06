@@ -136,17 +136,24 @@ function midiSend(channel, msgType, ccNumber, value, msbNumber, lsbNumber, cc2Nu
             console.warn(`[MIDI] CC ${ccNumber}=${value} out of range 0-127; skipping`);
         }
     } else {
-        if (_is7Bit(msbNumberRaw)) {
-            _midiOutput.send([0xB0 | ch, 0x00, msbNumberRaw]);  // Bank Select MSB
-            console.log(`[MIDI] Ch:${ch} MSB:${msbNumberRaw}`);
-        } else {
-            console.warn(`[MIDI] MSB ${msbNumberRaw} out of range 0-127; skipping MSB`);
-        }
-        if (_is7Bit(lsbNumberRaw)) {
-            _midiOutput.send([0xB0 | ch, 0x20, lsbNumberRaw]);
-            console.log(`[MIDI] Ch:${ch} LSB:${lsbNumberRaw}`);
-        } else {     
-            console.warn(`[MIDI] LSB ${lsbNumberRaw} out of range 0-127; skipping`);
+        // Only emit Bank Select (CC#0 MSB / CC#32 LSB) when the user
+        // actually set a bank. Sending MSB:0/LSB:0 on every Program
+        // Change forces bank 0 on multi-bank synths/modelers and picks
+        // the wrong patch — the "phantom Bank 0/0" problem. Skip both
+        // sends when msb and lsb are both 0; send when either is set.
+        if (msbNumberRaw !== 0 || lsbNumberRaw !== 0) {
+            if (_is7Bit(msbNumberRaw)) {
+                _midiOutput.send([0xB0 | ch, 0x00, msbNumberRaw]);  // Bank Select MSB
+                console.log(`[MIDI] Ch:${ch} MSB:${msbNumberRaw}`);
+            } else {
+                console.warn(`[MIDI] MSB ${msbNumberRaw} out of range 0-127; skipping MSB`);
+            }
+            if (_is7Bit(lsbNumberRaw)) {
+                _midiOutput.send([0xB0 | ch, 0x20, lsbNumberRaw]);
+                console.log(`[MIDI] Ch:${ch} LSB:${lsbNumberRaw}`);
+            } else {
+                console.warn(`[MIDI] LSB ${lsbNumberRaw} out of range 0-127; skipping`);
+            }
         }
         if (_is7Bit(value)) {
             _midiOutput.send([0xC0 | ch, value]);
